@@ -16,6 +16,7 @@ static void lock_init_recursive(lock_t *lock);
 
 lock_t __lock___sinit_recursive_mutex;
 lock_t __lock___sfp_recursive_mutex;
+lock_t __lock___atexit_recursive_mutex;
 lock_t __lock___malloc_recursive_mutex;
 lock_t __lock___env_recursive_mutex;
 lock_t __lock___tz_mutex;
