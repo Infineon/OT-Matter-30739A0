@@ -77,6 +77,33 @@
 extern "C" {
 #endif
 
+///////////////////////////////////////////////////////////////////////////////
+/// Initialize the serial flash control module.
+///
+/// This utility is used to substitute the original wiced_hal_sflash_init utility
+/// since the original one set some IO pins to SPI pins.
+/// However, the user may want to use different IO pins as the SPI interface.
+///
+/// The user may call wiced_hal_sflash_clk_rate_set utility to set the clock rate
+/// before calling this utility. If the clock rate has not been set, the default
+/// clock rate will be 12 MHz.
+///
+/// Note that the serial flash module uses SPIFFY2 (SPI2) as the interface.
+///
+/// \param none
+///
+/// \return none
+///////////////////////////////////////////////////////////////////////////////
+void wiced_hal_sflash_init_general(void);
+
+///////////////////////////////////////////////////////////////////////////////
+/// Set the clock rate used for communicating with serial flash.
+///
+/// \param clk_rate    : clock rate
+///
+/// \return none
+///////////////////////////////////////////////////////////////////////////////
+void wiced_hal_sflash_clk_rate_set(uint32_t clk_rate);
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Initialize the SPI lines and low-level Serial Flash Interface Driver.
@@ -86,7 +113,7 @@ extern "C" {
 ///
 /// \return none
 ///////////////////////////////////////////////////////////////////////////////
-void wiced_hal_sflash_init(void);
+#define wiced_hal_sflash_init   wiced_hal_sflash_init_general
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Returns the installed SF module size. The low-level Serial Flash Interface
