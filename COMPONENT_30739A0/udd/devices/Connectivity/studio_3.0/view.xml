@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <View xml_version="1" xmlns="http://cypress.com/xsd/cystudiouddviewarch_v1">
+  <PadsPerPort value="56" /> <!--40 + 8 + 8 = GPIO_CNT + BT_GPIO_CNT + A_GPIO_CNT-->
+  <PadFunctionTypes>
+    <PadFunctionType name="AUX" connectionsPerPin="16" port="aux" />
+  </PadFunctionTypes>
+  <PadTypes>
+    <PadType value="PWR" category="POWER" />
+    <PadType value="GND" category="POWER" />
+    <PadType value="DEDICATED" category="DEDICATED" />
+    <PadType value="UNKNOWN" category="DEDICATED" />
+    <PadType value="GPIO" category="GPIO" />
+    <PadType value="BT_GPIO" category="GPIO" />
+    <PadType value="A_GPIO" category="GPIO" />
+  </PadTypes>
   <Connectivity location="connectivity" />
   <Wounding location="chipresourcewoundings.xml" />
   <!-- %1$d is for the port number which should always be 0 -->
