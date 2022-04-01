@@ -26,11 +26,20 @@ void platform_retarget_lock_init(void)
     lock_init_recursive(&__lock___malloc_recursive_mutex);
 }
 
-void __retarget_lock_init_recursive(lock_t ** lock) {}
+void __retarget_lock_init_recursive(lock_t ** lock)
+{
+    (void) (lock);
+}
 
-void __retarget_lock_close_recursive(lock_t * lock) {}
+void __retarget_lock_close_recursive(lock_t * lock)
+{
+    (void) (lock);
+}
 
-void __retarget_lock_acquire(lock_t * lock) {}
+void __retarget_lock_acquire(lock_t * lock)
+{
+    (void) (lock);
+}
 
 void __retarget_lock_acquire_recursive(lock_t * lock)
 {
@@ -40,7 +49,10 @@ void __retarget_lock_acquire_recursive(lock_t * lock)
     }
 }
 
-void __retarget_lock_release(lock_t * lock) {}
+void __retarget_lock_release(lock_t * lock)
+{
+    (void) (lock);
+}
 
 void __retarget_lock_release_recursive(lock_t * lock)
 {
