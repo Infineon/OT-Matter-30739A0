@@ -43,7 +43,7 @@ DevicePreset "30739 Flash"
 	DLConfigVSLocation = 0x501000
 	DLConfigVSLength = 0x2000
 	DLConfigRemoteDeviceCount = 0
-	DLConfigBD_ADDRBase = "20739B2*****"
+	DLConfigBD_ADDRBase = "30739A0*****"
 	DLConfigFixedBD_ADDRFlag = "Can change"
 	OTAFWUAckAllRecords = 0
 	OTAFWUUpdateFirmware = 1

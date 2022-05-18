@@ -32,7 +32,7 @@
  */
 #include <stdio.h>
 
-#include <platform_retarget_lock.h>
+#include "platform_retarget_lock.h"
 #include "spar_utils.h"
 #ifdef BLE_OTA_FW_UPGRADE
 #include <wiced_bt_ota_firmware_upgrade.h>
