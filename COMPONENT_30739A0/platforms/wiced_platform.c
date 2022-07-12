@@ -188,6 +188,9 @@ static void wiced_platform_bt_hci_vse_callback(uint8_t len, uint8_t *p)
 
 int __attribute__((weak)) main(int argc, char *argv[])
 {
+    (void) (argc);
+    (void) (argv);
+
     application_start();
 }
 
