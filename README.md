@@ -21,7 +21,12 @@ The Infineon AIROC&#8482; CYW30739 is an ultra-low-power multi-protocol system o
   ambient light sensor, thermistor, footprint for Infineon digital microphone,
   user switches and LEDs, and a USB connector for power, programming, and USB-UART bridge.<br>
   Max UART baud rate is 3M
-
+  
+#### CYW930739M2EVB-02:
+- 134-WLCSP AIROC&#8482; CYW30739 multi-protocol SoC with external 8TR8211C Low Noise Amplifier and Power Amplifier (eLNA/ePA),
+  ambient light sensor, thermistor, footprint for Infineon digital microphone, on board serial flash,
+  user switches and LEDs, and a USB connector for power, programming, and USB-UART bridge.<br>
+  Max UART baud rate is 3M
 
 
 
