@@ -56,6 +56,8 @@
 #define iocfg_premux_5_adr                             0x003383c0
 #define uart_hc_data_adr                               0x00352320
 
+uint16_t platform_gpio_int_status[3];
+
 extern wiced_platform_gpio_t platform_gpio_pins[];
 extern wiced_platform_led_config_t platform_led[];
 extern wiced_platform_button_config_t platform_button[];
@@ -82,6 +84,9 @@ extern size_t gpio_count;
 
 extern void application_start(void);
 extern void wiced_app_hal_init(void );
+extern uint16_t gpio_getPortInterruptStatus(BYTE port);
+
+void platform_gpio_int_st_read(void);
 
 typedef struct wiced_platform_bt_dev_vse_cb
 {
@@ -320,6 +325,8 @@ static wiced_result_t wiced_platform_bt_management_callback(wiced_bt_management_
 void wiced_platform_init(void)
 {
     uint32_t i = 0;
+
+    platform_gpio_int_st_read();
 
     wiced_app_hal_init();
 
@@ -608,4 +615,23 @@ void wiced_platform_puart_init(void (*puart_rx_cbk)(void*))
     wiced_hal_puart_register_interrupt(puart_rx_cbk);
     wiced_hal_puart_set_watermark_level(1);
     wiced_platform_puart_post_config();
+}
+
+void platform_gpio_int_st_read(void)
+{
+    int i;
+
+    for (i = 0; i < 3; i++)
+    {
+        platform_gpio_int_status[i] = gpio_getPortInterruptStatus(i);
+    }
+}
+
+uint16_t wiced_hal_platform_gpio_int_st_get(uint8_t port)
+{
+    if (port < 3)
+    {
+        return platform_gpio_int_status[port];
+    }
+    return 0xffff;
 }

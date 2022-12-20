@@ -44,3 +44,11 @@
 
 #define WICED_PUART_TXD                           WICED_P33      /* pin for PUART TXD         */
 #define WICED_PUART_RXD                           WICED_P34      /* pin for PUART RXD         */
+
+/**
+ * \brief Read GPIO int status when system boot
+ *
+ * @param[in] port  GPIO port id
+ *
+ */
+uint16_t wiced_hal_platform_gpio_int_st_get(uint8_t port);
