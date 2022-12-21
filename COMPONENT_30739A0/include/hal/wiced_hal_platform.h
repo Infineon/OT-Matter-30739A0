@@ -30,20 +30,9 @@
  * of such system or application assumes all risk of such use and in doing
  * so agrees to indemnify Cypress against all liability.
  */
-
-/* To support legacy code */
-
-#include "wiced_platform.h"
-
-#define WICED_GPIO_PIN_BUTTON WICED_GPIO_PIN_BUTTON_1
-
-#undef  WICED_GPIO_BUTTON_SETTINGS
-#define WICED_GPIO_BUTTON_SETTINGS                ( GPIO_INPUT_ENABLE | GPIO_PULL_DOWN | GPIO_EN_INT_RISING_EDGE )
-
-#define WICED_BUTTON_PRESSED_VALUE                 1
-
-#define WICED_PUART_TXD                           WICED_P33      /* pin for PUART TXD         */
-#define WICED_PUART_RXD                           WICED_P34      /* pin for PUART RXD         */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \brief Read GPIO int status when system boot
@@ -52,3 +41,7 @@
  *
  */
 uint16_t wiced_hal_platform_gpio_int_st_get(uint8_t port);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
