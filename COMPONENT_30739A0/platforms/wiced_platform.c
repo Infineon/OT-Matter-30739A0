@@ -56,7 +56,6 @@
 #define iocfg_premux_5_adr                             0x003383c0
 #define uart_hc_data_adr                               0x00352320
 
-uint16_t platform_gpio_int_status[3];
 
 extern wiced_platform_gpio_t platform_gpio_pins[];
 extern wiced_platform_led_config_t platform_led[];
@@ -81,6 +80,8 @@ extern size_t gpio_count;
 #ifndef BITS_PER_BYTE
 #define BITS_PER_BYTE   (8)
 #endif // BITS_PER_BYTE
+#define GPIO_INT_STATUS_BYTE_COUNT (((MAX_NUM_OF_GPIO - 1) / BITS_PER_BYTE) + 1)
+static uint8_t platform_gpio_int_status[GPIO_INT_STATUS_BYTE_COUNT] = {0};
 
 extern void application_start(void);
 extern void wiced_app_hal_init(void );
@@ -619,19 +620,26 @@ void wiced_platform_puart_init(void (*puart_rx_cbk)(void*))
 
 void platform_gpio_int_st_read(void)
 {
-    int i;
+    uint32_t i;
 
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < MAX_NUM_OF_GPIO; i++)
     {
-        platform_gpio_int_status[i] = gpio_getPortInterruptStatus(i);
+        if (wiced_hal_gpio_get_pin_interrupt_status(i) == 1)
+            platform_gpio_int_status[i / BITS_PER_BYTE] |= 1 << i % BITS_PER_BYTE;
     }
 }
 
-uint16_t wiced_hal_platform_gpio_int_st_get(uint8_t port)
+/**
+ * \brief Read GPIO int status when system boot
+ *
+ * @param[in] port  GPIO pin id
+ * @return  wiced_hal_platform_gpio_int_st_get    : returns 0 or 1.
+ *
+ */
+uint8_t wiced_hal_platform_gpio_int_st_get(uint32_t pin)
 {
-    if (port < 3)
-    {
-        return platform_gpio_int_status[port];
-    }
-    return 0xffff;
+    uint8_t i = 0;
+    i = (platform_gpio_int_status[pin / BITS_PER_BYTE] & (1 << (pin % BITS_PER_BYTE)) ? 1 : 0);
+    platform_gpio_int_status[pin / BITS_PER_BYTE] &= ~(1 << (pin % BITS_PER_BYTE));
+    return i;
 }
