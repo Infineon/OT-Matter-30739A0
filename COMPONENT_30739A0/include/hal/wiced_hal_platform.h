@@ -35,13 +35,14 @@ extern "C" {
 #endif
 
 /**
- * \brief Read GPIO int status when system boot
+ * \brief Read and clear the specified GPIO interrupt status.
  *
- * @param[in] port  GPIO pin id
- * @return  wiced_hal_platform_gpio_int_st_get    : returns 0 or 1.
+ * @param[in] pin  GPIO pin id
  *
+ * @retval 1  There was a pending interrupt from the specified pin.
+ * @retval 0  There was not any pending interrupt from the specified pin.
  */
-uint8_t wiced_hal_platform_gpio_int_st_get(uint32_t pin);
+uint8_t wiced_hal_platform_gpio_int_status_get_and_clear(uint32_t pin);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -629,14 +629,7 @@ void platform_gpio_int_st_read(void)
     }
 }
 
-/**
- * \brief Read GPIO int status when system boot
- *
- * @param[in] port  GPIO pin id
- * @return  wiced_hal_platform_gpio_int_st_get    : returns 0 or 1.
- *
- */
-uint8_t wiced_hal_platform_gpio_int_st_get(uint32_t pin)
+uint8_t wiced_hal_platform_gpio_int_status_get_and_clear(uint32_t pin)
 {
     uint8_t i = 0;
     i = (platform_gpio_int_status[pin / BITS_PER_BYTE] & (1 << (pin % BITS_PER_BYTE)) ? 1 : 0);
