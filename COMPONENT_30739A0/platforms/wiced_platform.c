@@ -47,6 +47,7 @@
 #include "wiced_platform_memory.h"
 #include "wiced_result.h"
 #include "wiced_rtos.h"
+#include "wiced_sleep.h"
 #include "platform_nvram.h"
 
 #define cr_pad_fcn_ctl_adr0                            0x00320088
@@ -92,6 +93,7 @@ void platform_gpio_int_st_read(void);
 void wiced_local_irk_restore(void);
 void wiced_local_irk_update(uint8_t *p_key);
 wiced_result_t wiced_local_irk_request(wiced_bt_management_evt_data_t *p_event_data);
+void wiced_platform_set_static_random_addr(void);
 
 typedef struct wiced_platform_bt_dev_vse_cb
 {
@@ -133,6 +135,12 @@ typedef struct
 static wiced_local_irk_info_t local_irk_info = {0};
 
 static wiced_platform_cb_t wiced_platform_cb = {0};
+
+enum
+{
+    PLATFORM_NVRAM_ID_BT_IRK                   = PLATFORM_NVRAM_ID_BT_BASE,
+    PLATFORM_NVRAM_ID_BT_LE_STATIC_RANDOM_ADDR,
+};
 
 /* utility functions */
 
@@ -300,9 +308,13 @@ static wiced_result_t wiced_platform_bt_management_callback(wiced_bt_management_
         /* Create a thread for application. */
         wiced_platform_application_thread_create();
 
+        /* Create or restore BLE static random address */
+        if (wiced_platform_bt_cfg_settings.rpa_refresh_timeout == 0)
+            wiced_platform_set_static_random_addr();
+
         return WICED_SUCCESS;
 
-     case BTM_BLE_ADVERT_STATE_CHANGED_EVT:
+    case BTM_BLE_ADVERT_STATE_CHANGED_EVT:
         p_mode = &p_event_data->ble_advert_state_changed;
         printf( "Advertisement State Change: %d\n", *p_mode);
         if ( *p_mode == BTM_BLE_ADVERT_OFF )
@@ -674,7 +686,7 @@ void wiced_local_irk_restore(void)
 {
     uint16_t nb_bytes;
 
-    nb_bytes = wiced_hal_read_nvram(PLATFORM_NVRAM_ID_BT_BASE,
+    nb_bytes = wiced_hal_read_nvram(PLATFORM_NVRAM_ID_BT_IRK,
                                     BTM_SECURITY_LOCAL_KEY_DATA_LEN,
                                     (uint8_t *)&local_irk_info.local_irk,
                                     &local_irk_info.result);
@@ -695,7 +707,7 @@ void wiced_local_irk_update(uint8_t *p_key)
     /* Check if the IRK shall be updated. */
     if (memcmp(p_key, &local_irk_info.local_irk, BTM_SECURITY_LOCAL_KEY_DATA_LEN) != 0)
     {
-        nb_bytes = wiced_hal_write_nvram(PLATFORM_NVRAM_ID_BT_BASE,
+        nb_bytes = wiced_hal_write_nvram(PLATFORM_NVRAM_ID_BT_IRK,
                                          BTM_SECURITY_LOCAL_KEY_DATA_LEN,
                                          p_key,
                                          &result);
@@ -725,4 +737,32 @@ wiced_result_t wiced_local_irk_request(wiced_bt_management_evt_data_t *p_event_d
     }
 
     return local_irk_info.result;
+}
+
+/*
+ * Create or restore BLE static random address
+ */
+void wiced_platform_set_static_random_addr(void)
+{
+    uint16_t       count;
+    wiced_result_t result;
+    uint8_t        bd_addr[6];
+
+    if (wiced_sleep_get_boot_mode() == WICED_SLEEP_FAST_BOOT)
+    {
+        /* Boot from sleep */
+        /* Restore static random address from nvram */
+        count = wiced_hal_read_nvram(PLATFORM_NVRAM_ID_BT_LE_STATIC_RANDOM_ADDR, sizeof(bd_addr), bd_addr, &result);
+        if (count == sizeof(bd_addr))
+        {
+            wiced_bt_set_local_bdaddr(bd_addr, BLE_ADDR_RANDOM);
+            return;
+        }
+    }
+
+    /* Boot from cold or read nvram fail */
+    /* Create a new random one as static random address */
+    wiced_platform_entropy_get(bd_addr, sizeof(bd_addr));
+    wiced_bt_set_local_bdaddr(bd_addr, BLE_ADDR_RANDOM);
+    wiced_hal_write_nvram(PLATFORM_NVRAM_ID_BT_LE_STATIC_RANDOM_ADDR, sizeof(bd_addr), bd_addr, &result);
 }
