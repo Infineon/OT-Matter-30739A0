@@ -30,6 +30,7 @@
  * of such system or application assumes all risk of such use and in doing
  * so agrees to indemnify Cypress against all liability.
  */
+
 /*
  * @file
  * Header for HW crypto API
@@ -41,7 +42,7 @@
 //==================================================================================================
 // Include
 //==================================================================================================
-
+#include <stdint.h>
 
 //==================================================================================================
 // Constants
@@ -58,38 +59,38 @@ typedef enum
 // Type Definitions
 //==================================================================================================
 /*
- *   The same as ECC point structure in "foundation/hal/seceng/hw_seceng_api.h"
+ *   The structure of ECC point multiplication
  */
 typedef struct wiced_crypto_ecc_point_mul wiced_crypto_ecc_point_mul_t;
 typedef void (*wiced_crypto_ecc_point_mul_callback)(wiced_crypto_ecc_point_mul_t *ecc_point_mul);
 typedef struct wiced_crypto_ecc_point_mul
 {
-    UINT32 *hw_pka_next;	//PKA next point
-    UINT8   hw_pka_next_id;	//PKA function id
-    UINT8   hw_pka_skip_check;	//0: check PKA next point, 1: skip check
-    INT8    order;		//data ordering: "Q_BIGNUM"(*Not available), "Q_NORMAL"
-    UINT8   k_len;		//key length
-    UINT8   src_len;		//source length
-    UINT8   status;		//status
-    UINT32 *k;			//Integer by which to multiply
-    UINT32 *src_x;		//source: x
-    UINT32 *src_y;		//source: y
-    UINT32 *src_z;		//source: z
-    UINT32 *cur_a;		//curve parameter: a
-    UINT32 *cur_b;		//curve parameter: b
-    UINT32 *cur_p;		//curve parameter: p
-    UINT32 *dest_x;		//destination: x
-    UINT32 *dest_y;		//destination: y
-    UINT32 *dest_z;		//destination: z
+    uint32_t *hw_pka_next;	//PKA next point
+    uint8_t   hw_pka_next_id;	//PKA function id
+    uint8_t   hw_pka_skip_check;	//0: check PKA next point, 1: skip check
+    int8_t    order;		//data ordering: "Q_BIGNUM"(*Not available), "Q_NORMAL"
+    uint8_t   k_len;		//key length
+    uint8_t   src_len;		//source length
+    uint8_t   status;		//status
+    uint32_t *k;			//Integer by which to multiply
+    uint32_t *src_x;		//source: x
+    uint32_t *src_y;		//source: y
+    uint32_t *src_z;		//source: z
+    uint32_t *cur_a;		//curve parameter: a
+    uint32_t *cur_b;		//curve parameter: b
+    uint32_t *cur_p;		//curve parameter: p
+    uint32_t *dest_x;		//destination: x
+    uint32_t *dest_y;		//destination: y
+    uint32_t *dest_z;		//destination: z
     wiced_crypto_ecc_point_mul_callback callback;	//callback function
 }wiced_crypto_ecc_point_mul_t;
+
 //==================================================================================================
 // Functions
 //==================================================================================================
 /*
  * Function         wiced_hal_crypto_ecc_point_mul
  *
- *                  use SEC_ENG API in "foundation/hal/seceng/hw_seceng_api.c"
  *
  * @param[in]	    p_ecc_pt_mul: The parameters of ECC point multiplication
  *
@@ -101,4 +102,3 @@ typedef struct wiced_crypto_ecc_point_mul
 wiced_crypto_result_t wiced_hal_crypto_ecc_point_mul(wiced_crypto_ecc_point_mul_t *p_ecc_pt_mul);
 
 #endif //_WICED_HAL_CRYPTO_H_
-
