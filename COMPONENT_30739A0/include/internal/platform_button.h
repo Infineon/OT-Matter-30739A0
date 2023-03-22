@@ -93,6 +93,7 @@ extern wiced_result_t  platform_button_enable( platform_button_t button );
 extern wiced_result_t  platform_button_disable( platform_button_t button );
 extern wiced_bool_t    platform_button_get_value( platform_button_t button );
 extern wiced_result_t  platform_button_register_state_change_callback( platform_button_state_change_callback_t callback );
+wiced_bool_t platform_button_pending_event_get_and_clear(platform_button_t button);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -30,17 +30,20 @@
  * of such system or application assumes all risk of such use and in doing
  * so agrees to indemnify Cypress against all liability.
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* To support legacy code */
+/**
+ * \brief Read and clear the specified GPIO interrupt status.
+ *
+ * @param[in] pin  GPIO pin id
+ *
+ * @retval 1  There was a pending interrupt from the specified pin.
+ * @retval 0  There was not any pending interrupt from the specified pin.
+ */
+uint8_t wiced_hal_platform_gpio_int_status_get_and_clear(uint32_t pin);
 
-#include "wiced_platform.h"
-
-#define WICED_GPIO_PIN_BUTTON WICED_GPIO_PIN_BUTTON_1
-
-#undef  WICED_GPIO_BUTTON_SETTINGS
-#define WICED_GPIO_BUTTON_SETTINGS                ( GPIO_INPUT_ENABLE | GPIO_PULL_DOWN | GPIO_EN_INT_RISING_EDGE )
-
-#define WICED_BUTTON_PRESSED_VALUE                 1
-
-#define WICED_PUART_TXD                           WICED_P33      /* pin for PUART TXD         */
-#define WICED_PUART_RXD                           WICED_P34      /* pin for PUART RXD         */
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

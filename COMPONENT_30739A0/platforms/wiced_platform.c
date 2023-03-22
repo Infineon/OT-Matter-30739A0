@@ -47,6 +47,7 @@
 #include "wiced_platform_memory.h"
 #include "wiced_result.h"
 #include "wiced_rtos.h"
+#include "platform_nvram.h"
 
 #define cr_pad_fcn_ctl_adr0                            0x00320088
 #define cr_pad_fcn_ctl_adr2                            0x00320090
@@ -55,6 +56,7 @@
 #define mia_dbg_adr                                    0x0033801c
 #define iocfg_premux_5_adr                             0x003383c0
 #define uart_hc_data_adr                               0x00352320
+
 
 extern wiced_platform_gpio_t platform_gpio_pins[];
 extern wiced_platform_led_config_t platform_led[];
@@ -73,15 +75,23 @@ extern size_t gpio_count;
 #define WICED_PLATFORM_APPLICATION_THREAD_EVENT_WAIT_TIME   (1) // ms
 #else
 #define WICED_PLATFORM_APPLICATION_THREAD_STACK_SIZE        (0x00001300)
-#define WICED_PLATFORM_APPLICATION_THREAD_EVENT_WAIT_TIME   (5) // ms
+#define WICED_PLATFORM_APPLICATION_THREAD_EVENT_WAIT_TIME   WICED_WAIT_FOREVER // ms
 #endif
 
 #ifndef BITS_PER_BYTE
 #define BITS_PER_BYTE   (8)
 #endif // BITS_PER_BYTE
+#define GPIO_INT_STATUS_BYTE_COUNT (((MAX_NUM_OF_GPIO - 1) / BITS_PER_BYTE) + 1)
+static uint8_t platform_gpio_int_status[GPIO_INT_STATUS_BYTE_COUNT] = {0};
 
 extern void application_start(void);
 extern void wiced_app_hal_init(void );
+extern uint16_t gpio_getPortInterruptStatus(BYTE port);
+
+void platform_gpio_int_st_read(void);
+void wiced_local_irk_restore(void);
+void wiced_local_irk_update(uint8_t *p_key);
+wiced_result_t wiced_local_irk_request(wiced_bt_management_evt_data_t *p_event_data);
 
 typedef struct wiced_platform_bt_dev_vse_cb
 {
@@ -114,6 +124,13 @@ typedef struct wiced_platform_cb
 
     wiced_platform_application_thread_specific_handler  *p_app_specific_handler;
 } wiced_platform_cb_t;
+
+typedef struct
+{
+    wiced_bt_local_identity_keys_t  local_irk;
+    wiced_result_t                  result;
+} wiced_local_irk_info_t;
+static wiced_local_irk_info_t local_irk_info = {0};
 
 static wiced_platform_cb_t wiced_platform_cb = {0};
 
@@ -293,8 +310,24 @@ static wiced_result_t wiced_platform_bt_management_callback(wiced_bt_management_
             printf( "Advertisement State BTM_BLE_ADVERT_OFF \n");
         }
         break;
+    case BTM_LOCAL_IDENTITY_KEYS_UPDATE_EVT:
+        printf("BTM_LOCAL_IDENTITY_KEYS_UPDATE_EVT\n");
 
+        wiced_local_irk_update(p_event_data->local_identity_keys_update.local_key_data);
+        break;
+    case BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT:
+        /*
+         * Request to restore local identity keys from NVRAM
+         * (requested during Bluetooth start up)
+         * */
+        printf("BTM_LOCAL_IDENTITY_KEYS_REQUEST_EVT (%d)\n", local_irk_info.result);
 
+        if (wiced_local_irk_request(p_event_data) != WICED_BT_SUCCESS)
+        {
+            return WICED_BT_NO_RESOURCES;
+        }
+
+        break;
     default:
         printf("%s: event(%d).\n", __FUNCTION__, event);
         break;
@@ -320,6 +353,8 @@ static wiced_result_t wiced_platform_bt_management_callback(wiced_bt_management_
 void wiced_platform_init(void)
 {
     uint32_t i = 0;
+
+    platform_gpio_int_st_read();
 
     wiced_app_hal_init();
 
@@ -374,6 +409,9 @@ void wiced_platform_init(void)
     wiced_bt_stack_init(wiced_platform_bt_management_callback,
                         &wiced_platform_bt_cfg_settings,
                         wiced_platform_bt_cfg_buf_pools);
+
+    /* Restore local Identify Resolving Key (IRK) for BLE Private Resolvable Address. */
+    wiced_local_irk_restore();
 }
 
 /**
@@ -608,4 +646,83 @@ void wiced_platform_puart_init(void (*puart_rx_cbk)(void*))
     wiced_hal_puart_register_interrupt(puart_rx_cbk);
     wiced_hal_puart_set_watermark_level(1);
     wiced_platform_puart_post_config();
+}
+
+void platform_gpio_int_st_read(void)
+{
+    uint32_t i;
+
+    for (i = 0; i < MAX_NUM_OF_GPIO; i++)
+    {
+        if (wiced_hal_gpio_get_pin_interrupt_status(i) == 1)
+            platform_gpio_int_status[i / BITS_PER_BYTE] |= 1 << i % BITS_PER_BYTE;
+    }
+}
+
+uint8_t wiced_hal_platform_gpio_int_status_get_and_clear(uint32_t pin)
+{
+    uint8_t i = 0;
+    i = (platform_gpio_int_status[pin / BITS_PER_BYTE] & (1 << (pin % BITS_PER_BYTE)) ? 1 : 0);
+    platform_gpio_int_status[pin / BITS_PER_BYTE] &= ~(1 << (pin % BITS_PER_BYTE));
+    return i;
+}
+
+/*
+ * Restore local Identity Resolving Key
+ */
+void wiced_local_irk_restore(void)
+{
+    uint16_t nb_bytes;
+
+    nb_bytes = wiced_hal_read_nvram(PLATFORM_NVRAM_ID_BT_BASE,
+                                    BTM_SECURITY_LOCAL_KEY_DATA_LEN,
+                                    (uint8_t *)&local_irk_info.local_irk,
+                                    &local_irk_info.result);
+
+    printf("wiced_local_irk_restore (result: %d, nb_bytes: %d)\n",
+                   local_irk_info.result,
+                   nb_bytes);
+}
+
+/*
+ * Update local Identity Resolving Key
+ */
+void wiced_local_irk_update(uint8_t *p_key)
+{
+    uint16_t nb_bytes;
+    wiced_result_t result;
+
+    /* Check if the IRK shall be updated. */
+    if (memcmp(p_key, &local_irk_info.local_irk, BTM_SECURITY_LOCAL_KEY_DATA_LEN) != 0)
+    {
+        nb_bytes = wiced_hal_write_nvram(PLATFORM_NVRAM_ID_BT_BASE,
+                                         BTM_SECURITY_LOCAL_KEY_DATA_LEN,
+                                         p_key,
+                                         &result);
+
+        printf("wiced_local_irk_update (result: %d, nb_bytes: %d)\n",
+                       result,
+                       nb_bytes);
+
+        if ((nb_bytes == BTM_SECURITY_LOCAL_KEY_DATA_LEN) &&
+            (result == WICED_BT_SUCCESS))
+        {
+            memcpy(&local_irk_info.local_irk, p_key, BTM_SECURITY_LOCAL_KEY_DATA_LEN);
+
+            local_irk_info.result = result;
+        }
+    }
+}
+
+/*
+ * Request local Identity Resolving Key
+ */
+wiced_result_t wiced_local_irk_request(wiced_bt_management_evt_data_t *p_event_data)
+{
+    if (local_irk_info.result == WICED_BT_SUCCESS)
+    {
+        memcpy(&p_event_data->local_identity_keys_request, &local_irk_info.local_irk, BTM_SECURITY_LOCAL_KEY_DATA_LEN);
+    }
+
+    return local_irk_info.result;
 }
