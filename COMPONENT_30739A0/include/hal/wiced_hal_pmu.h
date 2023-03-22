@@ -49,6 +49,11 @@
 //==================================================================================================
 // Functions
 //==================================================================================================
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief To init the power down config array data
  * @return @ref wiced_result_t
@@ -67,5 +72,9 @@ wiced_result_t wiced_hal_pmu_clear_alive_pin_config(void);
  * @return @ref wiced_result_t
  */
 wiced_result_t wiced_hal_pmu_set_alive_pin_config(uint8_t pin);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif //_WICED_HAL_PMU_H_
