@@ -31,11 +31,13 @@
  * so agrees to indemnify Cypress against all liability.
  */
 
-#include <stddef.h>
+#include <wiced_hal_platform.h>
 #include <wiced_hal_rand.h>
+#include <stdio.h>
 
 
-wiced_result_t wiced_platform_entropy_get(uint8_t *output, uint16_t output_length)
+__attribute__((weak))
+wiced_result_t wiced_hal_platform_random_get(uint8_t *output, size_t length, size_t *output_length)
 {
     uint16_t remain_length;
     uint8_t *p_index = NULL;
@@ -48,7 +50,7 @@ wiced_result_t wiced_platform_entropy_get(uint8_t *output, uint16_t output_lengt
         return WICED_BADARG;
     }
 
-    remain_length = output_length;
+    remain_length = length;
     p_index = output;
     i = 0;
 
@@ -65,6 +67,11 @@ wiced_result_t wiced_platform_entropy_get(uint8_t *output, uint16_t output_lengt
         p_index++;
         i++;
         remain_length--;
+    }
+
+    if (output_length != NULL)
+    {
+        *output_length = length;
     }
 
     return WICED_SUCCESS;

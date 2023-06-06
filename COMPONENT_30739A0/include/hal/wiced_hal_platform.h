@@ -30,6 +30,9 @@
  * of such system or application assumes all risk of such use and in doing
  * so agrees to indemnify Cypress against all liability.
  */
+#include <stddef.h>
+#include <wiced.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -43,6 +46,21 @@ extern "C" {
  * @retval 0  There was not any pending interrupt from the specified pin.
  */
 uint8_t wiced_hal_platform_gpio_int_status_get_and_clear(uint32_t pin);
+
+/**
+ * \brief This function retrieves random values from the platform-specific
+ *        implementation and stores it in the provided buffer.
+ *
+ * @param[out] output         A pointer to the buffer where random values is stored.
+ *                            Must not be NULL.
+ * @param[in]  length         The size of the buffer, in bytes.
+ * @param[out] output_length  The actual number of bytes stored.
+ *
+ * @retval WICED_SUCCESS  Successfully filled the buffer with random values.
+ * @retval WICED_ERROR    Failed to fill the buffer with random values.
+ * @retval WICED_BADARG   The buffer pointer was set to NULL.
+ */
+wiced_result_t wiced_hal_platform_random_get(uint8_t *output, size_t length, size_t *output_length);
 
 #ifdef __cplusplus
 } /* extern "C" */

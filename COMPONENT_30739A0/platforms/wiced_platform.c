@@ -40,6 +40,7 @@
 #include "wiced_bt_stack.h"
 #include "wiced_hal_cpu_clk.h"
 #include "wiced_hal_duart.h"
+#include "wiced_hal_platform.h"
 #include "wiced_hal_puart.h"
 #include "wiced_hal_wdog.h"
 #include "wiced_platform.h"
@@ -762,7 +763,7 @@ void wiced_platform_set_static_random_addr(void)
 
     /* Boot from cold or read nvram fail */
     /* Create a new random one as static random address */
-    wiced_platform_entropy_get(bd_addr, sizeof(bd_addr));
+    wiced_hal_platform_random_get(bd_addr, sizeof(bd_addr), NULL);
     wiced_bt_set_local_bdaddr(bd_addr, BLE_ADDR_RANDOM);
     wiced_hal_write_nvram(PLATFORM_NVRAM_ID_BT_LE_STATIC_RANDOM_ADDR, sizeof(bd_addr), bd_addr, &result);
 }
