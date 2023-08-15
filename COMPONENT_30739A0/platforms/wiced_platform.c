@@ -32,6 +32,7 @@
  */
 #include <stdio.h>
 
+#include "cycfg_pins.h"
 #include "platform_retarget_lock.h"
 #include "spar_utils.h"
 #ifdef BLE_OTA_FW_UPGRADE
@@ -43,7 +44,6 @@
 #include "wiced_hal_platform.h"
 #include "wiced_hal_puart.h"
 #include "wiced_hal_wdog.h"
-#include "wiced_platform.h"
 #include "wiced_platform_bt_cfg.h"
 #include "wiced_platform_memory.h"
 #include "wiced_result.h"
@@ -59,15 +59,6 @@
 #define iocfg_premux_5_adr                             0x003383c0
 #define uart_hc_data_adr                               0x00352320
 
-
-extern wiced_platform_gpio_t platform_gpio_pins[];
-extern wiced_platform_led_config_t platform_led[];
-extern wiced_platform_button_config_t platform_button[];
-extern wiced_platform_gpio_config_t platform_gpio[];
-extern size_t platform_gpio_pin_count;
-extern size_t led_count;
-extern size_t button_count;
-extern size_t gpio_count;
 
 #define WICED_PLATFORM_DEBUG_UART_BAUDRATE  3000000
 
@@ -142,42 +133,6 @@ enum
     PLATFORM_NVRAM_ID_BT_IRK                   = PLATFORM_NVRAM_ID_BT_BASE,
     PLATFORM_NVRAM_ID_BT_LE_STATIC_RANDOM_ADDR,
 };
-
-/* utility functions */
-
-/**
- *  \brief Provide utility function for application to register for cb upon button interrupt
- *
- *  \param [in] button select a button from wiced_platform_button_number_t
- *  \param [in] userfn Provide the call back function
- *  \param [in] userdata Data to be provided with the call back
- *  \param [in] trigger_edge To configure interrupt on rising/falling/dual edge
- *
- *  \return none
- *
- */
-void wiced_platform_register_button_callback(wiced_platform_button_number_t button, void (*userfn)(void*, uint8_t), void* userdata,
-                wiced_platform_button_interrupt_edge_t trigger_edge)
-{
-    if(button < button_count)
-    {
-        wiced_hal_gpio_register_pin_for_interrupt(*platform_button[button].gpio, userfn, userdata);
-        wiced_hal_gpio_configure_pin(*platform_button[button].gpio, (platform_button[button].config | trigger_edge), platform_button[button].default_state);
-    }
-}
-
-/**
- *  \brief Return state of the pin when button is pressed
- *
- *  \param [in] button select a button from wiced_platform_button_number_t
- *
- *  \return button pressed value
- *
- */
-uint32_t wiced_platform_get_button_pressed_value(wiced_platform_button_number_t button)
-{
-	return platform_button[button].button_pressed_value;
-}
 
 static void wiced_platform_bt_hci_vse_callback(uint8_t len, uint8_t *p)
 {
@@ -394,6 +349,13 @@ void wiced_platform_init(void)
         wiced_hal_gpio_configure_pin(*platform_gpio[i].gpio, (platform_gpio[i].config), platform_gpio[i].default_state);
     }
 
+    /* Initialize PWMs with the default configuration */
+    for (i = 0; i < pwm_count; i++)
+    {
+        wiced_hal_gpio_configure_pin(platform_pwm[i].gpio->gpio_pin, GPIO_OUTPUT_ENABLE,
+                platform_pwm[i].invert ? GPIO_PIN_OUTPUT_HIGH : GPIO_PIN_OUTPUT_LOW);
+    }
+
     /* disable watchdog, set up SWD, wait for attach if ENABLE_DEBUG */
     SETUP_APP_FOR_DEBUG_IF_DEBUG_ENABLED();
     BUSY_WAIT_TILL_MANUAL_CONTINUE_IF_DEBUG_ENABLED();
@@ -402,7 +364,7 @@ void wiced_platform_init(void)
 
 #ifdef USE_BT_UART_AS_CLI
     /* Use PUART pin as Debug UART. */
-    wiced_hal_duart_init(WICED_PUART_TXD, MAX_NUM_OF_GPIO, WICED_PLATFORM_DEBUG_UART_BAUDRATE);
+    wiced_hal_duart_init(PLATFORM_PUART_TXD, MAX_NUM_OF_GPIO, WICED_PLATFORM_DEBUG_UART_BAUDRATE);
 
     /* PUART through BT_UART */
     REG32(iocfg_premux_5_adr) &= ~((0xff) << 8);
@@ -413,7 +375,7 @@ void wiced_platform_init(void)
     REG32(mia_dbg_adr) = (REG32(mia_dbg_adr) & 0xfffffdff);
 #else
     /* Initialize Debug UART interface. */
-    wiced_hal_duart_init(WICED_DEBUG_PIN, MAX_NUM_OF_GPIO, WICED_PLATFORM_DEBUG_UART_BAUDRATE);
+    wiced_hal_duart_init(PLATFORM_DUART_TXD, MAX_NUM_OF_GPIO, WICED_PLATFORM_DEBUG_UART_BAUDRATE);
 #endif
 
     wiced_update_cpu_clock(WICED_TRUE, WICED_CPU_CLK_96MHZ);

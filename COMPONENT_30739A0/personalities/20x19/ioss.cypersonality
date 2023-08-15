@@ -18,7 +18,7 @@
   <DRCs/>
 
   <ConfigFirmware>
-    <ConfigInclude value="wiced_platform.h" include="true" />
+    <ConfigInclude value="wiced_device_config.h" include="true" />
 
     <ConfigDefine name="WICED_GET_PIN_FOR_LED(idx)" public="true" include="true" value="(*(platform_led[(idx)].gpio))" />
     <ConfigDefine name="WICED_GET_PIN_FOR_BUTTON(idx)" public="true" include="true" value="(*(platform_button[(idx)].gpio))" />
@@ -29,6 +29,12 @@
     </ConfigStruct>
 
     <ConfigVariable name="platform_gpio_pin_count" type="size_t" const="true" value="(sizeof(platform_gpio_pins) / sizeof(wiced_platform_gpio_t))" public="true" include="true" />
+
+    <ConfigStruct name="platform_pwm" type="wiced_platform_pwm_config_t" const="true" isArray="true" public="true" include="true">
+      <Member name="PLATFORM_PWM_`${getExposedMember(&quot;pwm[##]&quot;, &quot;index&quot;)}`" value="`${getExposedMember(&quot;pwm[##]&quot;, &quot;cfgStruct&quot;)}`" include="`${isBlockUsed(&quot;pwm[##]&quot;)}`" count="6" />
+    </ConfigStruct>
+
+    <ConfigVariable name="pwm_count" type="size_t" const="true" value="(sizeof(platform_pwm) / sizeof(wiced_platform_pwm_config_t))" public="true" include="true" />
 
     <ConfigStruct name="platform_led" type="wiced_platform_led_config_t" const="true" isArray="true" public="true" include="true">
       <Member name="`${getExposedMember(pinLoc##, &quot;gpioResource&quot;)}`" value="`${getExposedMember(pinLoc##, &quot;cfgStruct&quot;)}`" include="`${isBlockUsed(pinLoc##) &amp;&amp; &quot;LED&quot; eq getExposedMember(pinLoc##, &quot;type&quot;)}`" count="40" />

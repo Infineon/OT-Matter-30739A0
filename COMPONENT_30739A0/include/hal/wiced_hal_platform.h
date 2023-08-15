@@ -30,12 +30,106 @@
  * of such system or application assumes all risk of such use and in doing
  * so agrees to indemnify Cypress against all liability.
  */
-#include <stddef.h>
-#include <wiced.h>
+#ifndef __WICED_HAL_PLATFORM_H__
+#define __WICED_HAL_PLATFORM_H__
+
+#include <wiced_bt_dev.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+/**
+ * \brief prototype for application thread event handler
+ */
+typedef void (wiced_platform_application_thread_event_handler)(void);
+
+/**
+ * \brief prototype for application thread specific handler - used for user application
+ */
+typedef void (wiced_platform_application_thread_specific_handler)(void);
+
+
+/**
+ *  \brief Initialize all the required pins and configure their functionality
+ */
+void wiced_platform_init(void);
+
+/**
+ * \brief Register the BT stack event handler.
+ *
+ * @param [in] user specific handler (callback)
+ */
+void wiced_platform_register_bt_management_callback(wiced_bt_management_cback_t *p_callback);
+
+/**
+ * \brief Register the HCI VSE event handler
+ *
+ * @param [in] HCI VSE event code
+ * @param [in] target event code handler (callback)
+ *
+ * @return WICED_TRUE  : Success
+ *         WICED_FALSE : Fail
+ */
+wiced_bool_t wiced_platform_register_hci_vse_callback(uint8_t evt_code, wiced_bt_dev_vse_callback_t *p_callback);
+
+/**
+ * \brief Helper function to check if current utility is executed under application thread.
+ *
+ * @return WICED_TRUE  : Current utility is executed under application thread.
+ *         WICED_FALSE : Current utility is NOT executed under application thread.
+ */
+wiced_bool_t wiced_platform_application_thread_check(void);
+
+/**
+ * \brief Get application thread event code and the register the corresponding event handler if
+ *        provided.
+ *
+ * @param [out]    allocated event code
+ * @param [in]     user specified event handler
+ *
+ * @return WICED_TRUE  : Success
+ *         WICED_FALSE : Fail.
+ */
+wiced_bool_t wiced_platform_application_thread_event_register(uint32_t *p_event_code,
+        wiced_platform_application_thread_event_handler *p_event_handler);
+
+/**
+ * \brief Set an application thread event
+ *
+ * @param [in] event code (get by register utility)
+ */
+void wiced_platform_application_thread_event_set(uint32_t event_code);
+
+/**
+ * \brief Wait an application thread event
+ *
+ * @param [in] event code (get by register utility)
+ */
+void wiced_platform_application_thread_event_wait(uint32_t event_code);
+
+/**
+ * \brief Register a user application periodical handler under application thread.
+ *        The register handler will be executed periodically (defined in
+ *        WICED_PLATFORM_APPLICATION_THREAD_EVENT_WAIT_TIME) if the application thread
+ *        is id idle state.
+ *
+ * @param p_handler - user application handler
+ */
+void wiced_platform_application_thread_specific_handler_register(wiced_platform_application_thread_specific_handler *p_handler);
+
+/**
+ * \brief This function waits and dispatches application events.
+ */
+void wiced_platform_application_thread_event_dispatch(void);
+
+/**
+ * \brief Initialize PUART
+ *
+ * @param[in] puart_rx_cbk         Call back function to process rx bytes.
+ */
+void wiced_platform_puart_init(void (*puart_rx_cbk)(void*));
 
 /**
  * \brief Read and clear the specified GPIO interrupt status.
@@ -65,3 +159,5 @@ wiced_result_t wiced_hal_platform_random_get(uint8_t *output, size_t length, siz
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+#endif /* __WICED_HAL_PLATFORM_H__ */

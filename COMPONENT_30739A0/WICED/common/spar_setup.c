@@ -42,8 +42,8 @@
 #ifdef BLE_OTA_FW_UPGRADE
 #include <ota_fw_upgrade.h>
 #endif
+#include <wiced_hal_platform.h>
 #include <wiced_hal_wdog.h>
-#include <wiced_platform.h>
 #include <wiced_sleep.h>
 
 void * __dso_handle = NULL;
