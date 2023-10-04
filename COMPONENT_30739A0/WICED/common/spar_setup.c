@@ -190,6 +190,17 @@ void wiced_platform_default_lpo_init()
 }
 #endif
 
+__attribute__((section(".text_in_ram")))
+uint32_t wiced_patch_post_config_replacement(int stage)
+{
+    if (stage == 4)
+    {
+#ifdef BLE_OTA_FW_UPGRADE
+        wiced_firmware_upgrade_bootloader();
+#endif
+    }
+    return 0;
+}
 /*****************************************************************
  *   Function: spar_setup()
  *
@@ -225,9 +236,8 @@ void SPAR_CRT_SETUP(void)
     // Install included libraries and patches if any
     install_libs();
 
-#ifdef BLE_OTA_FW_UPGRADE
-    wiced_firmware_upgrade_bootloader();
-#endif
+    // Setup the wiced_patch_post_config function
+    wiced_patch_post_config = wiced_patch_post_config_replacement;
 
     // Setup the application start function.
     wiced_bt_app_pre_init = application_start_internal;

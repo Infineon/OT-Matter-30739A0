@@ -36,6 +36,7 @@
 #pragma once
 
 #include "spar_utils.h"
+#include "stdint.h"
 
 #ifdef __cplusplus
 #define EXTERN_C extern "C"
@@ -44,6 +45,7 @@
 #endif
 
 EXTERN_C void (*wiced_bt_app_pre_init)(void );
+EXTERN_C uint32_t (*wiced_patch_post_config)(int);
 EXTERN_C void application_start( void );
 
 #define APPLICATION_START() void application_start( void )
