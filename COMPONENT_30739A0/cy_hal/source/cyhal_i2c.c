@@ -48,6 +48,21 @@ cy_rslt_t cyhal_i2c_master_write(cyhal_i2c_t *obj, uint16_t dev_addr, uint8_t *d
     return CY_RSLT_SUCCESS;
 }
 
+cy_rslt_t cyhal_i2c_master_read(cyhal_i2c_t *obj, uint16_t dev_addr, uint8_t *data, uint16_t size, uint32_t timeout, bool send_stop)
+{
+    uint8_t status;
+
+    CY_UNUSED_PARAMETER(obj);
+    CY_UNUSED_PARAMETER(timeout);
+    CY_UNUSED_PARAMETER(send_stop);
+
+    status = wiced_hal_i2c_read(data, size, dev_addr);
+    if (status)
+        return CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_BOARD_HARDWARE_SSD1306, 0);
+
+    return CY_RSLT_SUCCESS;
+}
+
 #if defined(__cplusplus)
 }
 #endif
