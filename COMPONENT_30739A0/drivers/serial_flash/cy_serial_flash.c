@@ -61,6 +61,22 @@ static const flash_nor_query_info_table_struct_t flash_nor_query_info_table[] =
             .resume_to_suspend_delay_us = 100,
         },
     },
+    {
+        .manu_id = FLASH_NOR_VENDOR_GD,
+        .device_id = SERIAL_FLASH_DEVICE_ID_GD_GD25WQ16E,
+        .query = {
+            .flash_size = 2 * 1024 * 1024,
+            .qebo = 0x09,
+            .wsbo = 0x0F,
+            .esbo = 0x0F,
+            .tbbo = 0x05,
+            .cmpbo = 0x0E,
+            .adsbo = 0xFF,
+            .bp_all = 0x05,
+            .bp_mask = 0x07,
+            .resume_to_suspend_delay_us = 400,
+        },
+    },
 };
 
 __attribute__((section(".text_in_ram"))) void flash_nor_set_exist(flash_nor_exist_lv_t exist_lv)
@@ -179,7 +195,10 @@ __attribute__((section(".text_in_ram"))) cy_serial_flash_ret_type_t flash_nor_up
 
     switch (flash_nor_info.device_id)
     {
-        case SERIAL_FLASH_DEVICE_ID_GD_GD25WQ64E:    //gd25wq64e
+        case SERIAL_FLASH_DEVICE_ID_GD_GD25WQ16E:
+            flash_nor_info.adv.cmd_rd_sr2 = 0x35;
+            break;
+        case SERIAL_FLASH_DEVICE_ID_GD_GD25WQ64E:
             flash_nor_info.adv.cmd_rd_sr2 = 0x35;
             flash_nor_info.adv.cmd_rd_sr3 = 0x15;
             flash_nor_info.adv.cmd_wr_sr2 = 0x31;
