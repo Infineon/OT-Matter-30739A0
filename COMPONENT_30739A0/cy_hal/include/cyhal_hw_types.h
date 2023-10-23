@@ -22,5 +22,9 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
+#include "cy_utils.h"
+
 typedef struct {
 } cyhal_i2c_t;

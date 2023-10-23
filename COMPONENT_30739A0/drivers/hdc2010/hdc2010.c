@@ -42,7 +42,8 @@
 */
 
 #include "hdc2010.h"
-#include "cy_result.h"
+
+#include "cy_utils.h"
 #include "cyhal_i2c.h"
 #include "wiced_rtos.h"
 
