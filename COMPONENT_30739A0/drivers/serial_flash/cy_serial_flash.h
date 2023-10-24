@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #define _PACKED_                __attribute__((packed))
 /****************************************************************************************
  * Nor Flash SPI Definition
@@ -12,8 +14,7 @@
 #define FLASH_NOR_SPI_CLOCK_RATE 24000000
 #endif // GD25WQ64E_SPI_CLOCK_RATE
 
-#define SPIFFY2_TX_FIFO_LEN      256
-#define SPIFFY2_RX_FIFO_LEN      256
+#define SPIFFY2_RX_BUF_LEN      64
 
 /****************************************************************************************
  * Nor Flash Vendor Definition
@@ -44,9 +45,9 @@
 #define IS_SAME_FLASH_NOR_PAGE(addr0, addr1)            (((addr0) & 0xFFFFFF00) == ((addr1) & 0xFFFFFF00))
 #define ADDR_ENDIAN_TRANS(addr, flash_addr)             do {\
                                                             flash_addr[0] = (uint8_t) ((addr) >> 16);\
-                                                        	flash_addr[1] = (uint8_t) ((addr) >> 8); \
-                                                        	flash_addr[2] = (uint8_t) (addr);        \
-                                                    	} while (0);
+                                                            flash_addr[1] = (uint8_t) ((addr) >> 8); \
+                                                            flash_addr[2] = (uint8_t) (addr);        \
+                                                        } while (0);
 /****************************************************************************************
  * Nor Flash Enumeration
  ****************************************************************************************/

@@ -132,7 +132,7 @@ __attribute__((section(".text_in_ram"))) cy_serial_flash_ret_type_t flash_nor_cm
 
     uint32_t total_length = FLASH_NOR_CMD_LENGTH;
     uint32_t data_offset = total_length;
-    uint8_t rx_buffer[SPIFFY2_RX_FIFO_LEN];
+    uint8_t rx_buffer[SPIFFY2_RX_BUF_LEN];
 
     if (addr != NULL)
     {
@@ -145,7 +145,7 @@ __attribute__((section(".text_in_ram"))) cy_serial_flash_ret_type_t flash_nor_cm
     {
         total_length += length;
 
-        if (total_length > SPIFFY2_RX_FIFO_LEN)
+        if (total_length > SPIFFY2_RX_BUF_LEN)
         {
             return FLASH_NOR_RET_PARAM_INVALID;
         }
@@ -527,7 +527,7 @@ __attribute__((section(".text_in_ram"))) cy_serial_flash_ret_type_t cy_serial_fl
         return FLASH_NOR_RET_ADDR_LARGER_THAN_FLASH_SIZE;
     }
 
-    read_byte_len = SPIFFY2_RX_FIFO_LEN - (FLASH_NOR_CMD_LENGTH + FLASH_NOR_ADDR_LENGTH);
+    read_byte_len = SPIFFY2_RX_BUF_LEN - (FLASH_NOR_CMD_LENGTH + FLASH_NOR_ADDR_LENGTH);
 
     while (remain_byte_len > read_byte_len)
     {
