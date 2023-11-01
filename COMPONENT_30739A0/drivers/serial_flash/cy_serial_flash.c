@@ -515,7 +515,6 @@ __attribute__((section(".text_in_ram"))) cy_serial_flash_ret_type_t cy_serial_fl
         return FLASH_NOR_RET_PARAM_INVALID;
     }
 
-    cy_serial_flash_ret_type_t ret = FLASH_NOR_RET_UNKNOWN;
     uint32_t flash_size = cy_serial_flash_get_flash_size();
     uint32_t read_idx = 0;
     uint32_t read_byte_len = 0;
