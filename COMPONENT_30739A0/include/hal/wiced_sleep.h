@@ -178,6 +178,29 @@ wiced_sleep_boot_type_t wiced_sleep_get_boot_mode(void);
 */
 wiced_result_t wiced_hal_set_external_lpo_oscillator_bias(uint8_t bias);
 
+/**
+* Function         wiced_sleep_minimum_sleep_time_get
+*
+*                  API to get current minimum sleep time.
+*
+* @param[in]       None
+*
+* @return
+*                  uint32_t the minimum sleep time
+*/
+uint32_t wiced_sleep_minimum_sleep_time_get(void);
+
+/**
+* Function         wiced_sleep_minimum_sleep_time_add
+*
+*                  API to superpose the minimum sleep time.
+*
+* @param[in]       uint32_t time to be superposed (in us)
+*
+* @return           None
+*/
+void wiced_sleep_minimum_sleep_time_add(uint32_t time_in_us);
+
 /** @} */
 
 

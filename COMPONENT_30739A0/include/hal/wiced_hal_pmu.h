@@ -31,41 +31,50 @@
  * so agrees to indemnify Cypress against all liability.
  */
 
-#include <stddef.h>
-#include <wiced_hal_rand.h>
+/** @file
+ *
+ * To provide the methods to set the GPIO alive when into sleep
+ *
+ */
 
+#ifndef _WICED_HAL_PMU_H_
+#define _WICED_HAL_PMU_H_
 
-wiced_result_t wiced_platform_entropy_get(uint8_t *output, uint16_t output_length)
-{
-    uint16_t remain_length;
-    uint8_t *p_index = NULL;
-    uint32_t rand_num = 0;
-    uint8_t i;
-    uint8_t shift;
+//==================================================================================================
+// Include
+//==================================================================================================
+#include "wiced_bt_dev.h"
+#include "wiced_result.h"
 
-    if (output == NULL)
-    {
-        return WICED_BADARG;
-    }
+//==================================================================================================
+// Functions
+//==================================================================================================
 
-    remain_length = output_length;
-    p_index = output;
-    i = 0;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    while (remain_length)
-    {
-        if (i % sizeof(uint32_t) == 0)
-        {
-            rand_num = wiced_hal_rand_gen_num();
-        }
+/**
+ * @brief To init the power down config array data
+ * @return @ref wiced_result_t
+ */
+wiced_result_t wiced_hal_pmu_init_pd_config(void);
 
-        shift = 8 * (i % sizeof(uint32_t));
-        *p_index = (uint8_t) (rand_num >> shift);
+/**
+ * @brief To set the power down config array data to default value
+ * @return @ref wiced_result_t
+ */
+wiced_result_t wiced_hal_pmu_clear_alive_pin_config(void);
 
-        p_index++;
-        i++;
-        remain_length--;
-    }
+/**
+ * @brief To set the pin to keep original active in sleep mode
+ * @param[in]  pin   The pin number
+ * @return @ref wiced_result_t
+ */
+wiced_result_t wiced_hal_pmu_set_alive_pin_config(uint8_t pin);
 
-    return WICED_SUCCESS;
-}
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+#endif //_WICED_HAL_PMU_H_

@@ -5,6 +5,7 @@
     <Resource name="ioss\.pin" />
   </Dependencies>
   <ExposedMembers>
+    <ExposedMember key="idxNum" paramId="idxNum" />
     <ExposedMember key="cfgStruct" paramId="cfgStruct" />
     <ExposedMember key="cfgConnection" paramId="cfgConnection" />
     <ExposedMember key="type" paramId="Type" />
@@ -24,7 +25,7 @@
     <ParamSignal port="aux[0]" name="Target" group="General" visible="`${Type eq PERIPHERAL}`" desc="Peripheral driver signal." canBeEmpty="true" />
 
     <!-- Basic GPIO config settings -->
-    <ParamRange id="Index" name="Index" group="General" default="0" min="`${Type eq PERIPHERAL ? 0 : 1}`" max="`${COUNT}`" resolution="1" visible="`${Type ne PERIPHERAL}`" editable="true" desc="Index into the Pin's &quot;platform_`${toLower(Type)}`[]&quot; array (cycfg_pins.c). Note: Choosing a value above the maximum number defined in wiced_platform.h will require user to update a new value in wiced_platform_`${toLower(Type)}`_number_t enum." />
+    <ParamRange id="Index" name="Index" group="General" default="0" min="`${Type eq PERIPHERAL ? 0 : 1}`" max="`${COUNT}`" resolution="1" visible="`${Type ne PERIPHERAL}`" editable="true" desc="Index into the Pin's &quot;platform_`${toLower(Type)}`[]&quot; array (cycfg_pins.c)." />
 
     <ParamChoice id="DefaultState" name="Default State" group="General" default="GPIO_PIN_OUTPUT_LOW" visible="`${Type ne PERIPHERAL}`" editable="true" desc="Pin state on power up.">
       <Entry name="Low" value="GPIO_PIN_OUTPUT_LOW" visible="true" />
@@ -104,8 +105,8 @@
   </DRCs>
 
   <ConfigFirmware>
-    <ConfigInclude value="wiced_platform.h" include="true" />
     <ConfigInclude value="cycfg_routing.h" include="true" />
+    <ConfigInclude value="wiced_device_config.h" include="true" />
 
     <ConfigDefine name="`${INST_NAME}`" value="WICED_P`${padLeft(getInstNumber(&quot;pin&quot;), 2, &quot;0&quot;)}`" public="true" include="true" />
 

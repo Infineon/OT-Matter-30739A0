@@ -73,13 +73,9 @@ typedef enum
     PWM0  = 0,
     PWM1  = 1,
     PWM2  = 2,
-#if defined(BCM20739) || defined(BCM20735) || defined(BCM20819)
     PWM4  = 4,
     PWM5  = 5,
     MAX_PWMS = 6
-#else
-    MAX_PWMS = 4
-#endif
 } PwmChannels;
 
 /// Clock used for PWM. When LHL_CLK is set, 128 KHz is used.

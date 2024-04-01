@@ -49,15 +49,23 @@
 
 /*
  * Defines the wiced timer types. These timers are system tick driven and a
- * systick is 1 millisecond.So the minimum timer resolution supported is
- * 1 millisecond
+ * systick is 1 microsecond.So the minimum timer resolution supported is
+ * 1 microsecond
  */
 enum wiced_timer_type_e
 {
     WICED_SECONDS_TIMER = 1,
-    WICED_MILLI_SECONDS_TIMER, /* The minimum resolution supported is 1 ms */
+    WICED_MILLI_SECONDS_TIMER,
     WICED_SECONDS_PERIODIC_TIMER,
-    WICED_MILLI_SECONDS_PERIODIC_TIMER /*The minimum resolution supported is 1 ms */
+    WICED_MILLI_SECONDS_PERIODIC_TIMER,             /* Periodic millisecond-level timer in task mode  */
+    WICED_MICRO_SECONDS_TIMER,                      /* One-shot microsecond-level timer in task mode */
+    WICED_MICRO_SECONDS_PERIODIC_TIMER,             /* Periodic microsecond-level timer in task mode */
+    WICED_SECONDS_TIMER_INTERRUPT,                  /* One-shot second-level timer in interrupt mode */
+    WICED_MILLI_SECONDS_TIMER_INTERRUPT,            /* One-shot millisecond-level timer in interrupt mode */
+    WICED_MICRO_SECONDS_TIMER_INTERRUPT,            /* One-shot microsecond-level timer in interrupt mode */
+    WICED_SECONDS_PERIODIC_TIMER_INTERRUPT,         /* Periodic second-level timer in interrupt mode */
+    WICED_MILLI_SECONDS_PERIODIC_TIMER_INTERRUPT,   /* Periodic millisecond-level timer in interrupt mode */
+    WICED_MICRO_SECONDS_PERIODIC_TIMER_INTERRUPT,   /* Periodic microsecond-level timer in interrupt mode */
 };
 typedef uint8_t wiced_timer_type_t;/* (see #wiced_timer_type_e) */
 
